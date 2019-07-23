@@ -17,7 +17,13 @@
 package org.apache.rocketmq.remoting.netty;
 
 public class NettyServerConfig implements Cloneable {
+    /**
+     * NameServer 监听端口，该值默认会被初始化为9876
+     */
     private int listenPort = 8888;
+    /**
+     * Netty 业务线程个数
+     */
     private int serverWorkerThreads = 8;
     private int serverCallbackExecutorThreads = 0;
     private int serverSelectorThreads = 3;
@@ -35,6 +41,10 @@ public class NettyServerConfig implements Cloneable {
      *
      * ../glibc-2.10.1/configure \ --prefix=/usr \ --with-headers=/usr/include \
      * --host=x86_64-linux-gnu \ --build=x86_64-pc-linux-gnu \ --without-gd
+     */
+
+    /**
+     * 是否启用Epoll IO模型，Linux 环境下建议开启
      */
     private boolean useEpollNativeSelector = false;
 

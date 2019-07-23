@@ -41,6 +41,9 @@ import org.apache.rocketmq.srvutil.ServerUtil;
 import org.apache.rocketmq.srvutil.ShutdownHookThread;
 import org.slf4j.LoggerFactory;
 
+/**
+ * NameServer 启动流程分析
+ */
 public class NamesrvStartup {
 
     private static InternalLogger log;
@@ -54,6 +57,9 @@ public class NamesrvStartup {
     public static NamesrvController main0(String[] args) {
 
         try {
+            /**
+             *  step1:解析配置文件，需要填充 NamesrvConfig(NameServer 业务参数)、NettyServerConfig(NameServer 网络参数) 属性值
+             */
             NamesrvController controller = createNamesrvController(args);
             start(controller);
             String tip = "The Name Server boot success. serializeType=" + RemotingCommand.getSerializeTypeConfigInThisServer();
@@ -78,7 +84,12 @@ public class NamesrvStartup {
             System.exit(-1);
             return null;
         }
-
+        /**
+         * 把指定的配置文件或启动命令中的选型值填充到namesrvConfig、nettyServerConfig 对象
+         * 参数来源有以下两种形式
+         *  1.-c configFile 通过-c 命令指定配置文件路径
+         *  2.使用"-- 属性名 属性值" 例如 --listenPort 9876
+         */
         final NamesrvConfig namesrvConfig = new NamesrvConfig();
         final NettyServerConfig nettyServerConfig = new NettyServerConfig();
         nettyServerConfig.setListenPort(9876);
@@ -137,12 +148,17 @@ public class NamesrvStartup {
             throw new IllegalArgumentException("NamesrvController is null");
         }
 
+        /**
+         *step2.根据启动属性创建NamesrvController 示例，并初始化该实例NamesrvController为NameServer 的核心控制器
+         */
         boolean initResult = controller.initialize();
         if (!initResult) {
             controller.shutdown();
             System.exit(-3);
         }
-
+        /**
+         * step3.注册JVM 钩子函数并启动服务器，以便监听Broker、消息生产者的网络请求。
+         */
         Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(log, new Callable<Void>() {
             @Override
             public Void call() throws Exception {

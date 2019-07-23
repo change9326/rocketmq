@@ -73,6 +73,12 @@ public class NamesrvController {
         this.configuration.setStorePathFromConfig(this.namesrvConfig, "configStorePath");
     }
 
+    /**
+     * 加载KV 配置，创建NettyServer 网络处理对象，然后开始两个定时任务，在RocketMQ 中此类定时任务统称为心跳机制。
+     *  定时任务1：NameServer 没隔10s 扫描一次Broker,移除处于不激活状态的Broker.
+     *  定时任务2：NameServer 每隔10分钟，打印一次KV 配置
+     * @return
+     */
     public boolean initialize() {
 
         this.kvConfigManager.load();
