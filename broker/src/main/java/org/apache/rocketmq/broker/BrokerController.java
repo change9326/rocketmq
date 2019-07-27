@@ -143,6 +143,7 @@ public class BrokerController {
     private MessageStore messageStore;
     private RemotingServer remotingServer;
     private RemotingServer fastRemotingServer;
+
     private TopicConfigManager topicConfigManager;
     private ExecutorService sendMessageExecutor;
     private ExecutorService pullMessageExecutor;
@@ -860,7 +861,9 @@ public class BrokerController {
 
 
         this.registerBrokerAll(true, false, true);
-
+        /**
+         * Broker 发送心跳包核心代码
+         */
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override

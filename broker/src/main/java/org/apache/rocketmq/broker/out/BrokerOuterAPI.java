@@ -171,6 +171,10 @@ public class BrokerOuterAPI {
         return registerBrokerResultList;
     }
 
+    /**
+     * Broker 网络发送心跳包代码
+     *
+     */
     private RegisterBrokerResult registerBroker(
         final String namesrvAddr,
         final boolean oneway,

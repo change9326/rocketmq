@@ -76,7 +76,6 @@ public class NamesrvStartup {
 
     public static NamesrvController createNamesrvController(String[] args) throws IOException, JoranException {
         System.setProperty(RemotingCommand.REMOTING_VERSION_KEY, Integer.toString(MQVersion.CURRENT_VERSION));
-        //PackageConflictDetect.detectFastjson();
 
         Options options = ServerUtil.buildCommandlineOptions(new Options());
         commandLine = ServerUtil.parseCmdLine("mqnamesrv", args, buildCommandlineOptions(options), new PosixParser());
@@ -149,7 +148,7 @@ public class NamesrvStartup {
         }
 
         /**
-         *step2.根据启动属性创建NamesrvController 示例，并初始化该实例NamesrvController为NameServer 的核心控制器
+         *step2.根据启动属性创建NamesrvController 示例，并初始化该实例；NamesrvController为NameServer 的核心控制器
          */
         boolean initResult = controller.initialize();
         if (!initResult) {

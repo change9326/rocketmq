@@ -45,14 +45,33 @@ import org.apache.rocketmq.common.protocol.route.TopicRouteData;
 import org.apache.rocketmq.common.sysflag.TopicSysFlag;
 import org.apache.rocketmq.remoting.common.RemotingUtil;
 
+/**
+ * NameServer 路由实现类，路由元信息
+ */
 public class RouteInfoManager {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
     private final static long BROKER_CHANNEL_EXPIRED_TIME = 1000 * 60 * 2;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
-    private final HashMap<String/* topic */, List<QueueData>> topicQueueTable;
-    private final HashMap<String/* brokerName */, BrokerData> brokerAddrTable;
+    /**
+     * Topic 消息队列路由信息，消息发送时根据路由表进行负载均衡
+     */
+    private final HashMap<String/*topic*/, List<QueueData>> topicQueueTable;
+    /**
+     *Broker 基础信息，包含brokerName、所属集群名称、主备broker 地址
+     */
+    private final HashMap<String/*brokername*/, BrokerData> brokerAddrTable;
+    /**
+     * Broker 集群信息，存储集群中所有Broker名称
+     */
     private final HashMap<String/* clusterName */, Set<String/* brokerName */>> clusterAddrTable;
+    /**
+     * Broker 状态信息。NameServer 每次收到心跳包会替换该信息
+     */
     private final HashMap<String/* brokerAddr */, BrokerLiveInfo> brokerLiveTable;
+
+    /**
+     * Broker 上的FilterServer 列表，用于类模式消息过滤，
+     */
     private final HashMap<String/* brokerAddr */, List<String>/* Filter Server */> filterServerTable;
 
     public RouteInfoManager() {
@@ -99,6 +118,9 @@ public class RouteInfoManager {
         return topicList.encode();
     }
 
+    /**
+     *NameServer 处理心跳包
+     */
     public RegisterBrokerResult registerBroker(
         final String clusterName,
         final String brokerAddr,
@@ -111,6 +133,9 @@ public class RouteInfoManager {
         RegisterBrokerResult result = new RegisterBrokerResult();
         try {
             try {
+                /**
+                 * step1.路由注册需要加写锁，防止并发修改RouteInfoManager中的路由表
+                 */
                 this.lock.writeLock().lockInterruptibly();
 
                 Set<String> brokerNames = this.clusterAddrTable.get(clusterName);
@@ -121,7 +146,9 @@ public class RouteInfoManager {
                 brokerNames.add(brokerName);
 
                 boolean registerFirst = false;
-
+                /**
+                 * step2.维护BrokerData 信息
+                 */
                 BrokerData brokerData = this.brokerAddrTable.get(brokerName);
                 if (null == brokerData) {
                     registerFirst = true;
@@ -141,7 +168,9 @@ public class RouteInfoManager {
 
                 String oldAddr = brokerData.getBrokerAddrs().put(brokerId, brokerAddr);
                 registerFirst = registerFirst || (null == oldAddr);
-
+                /**
+                 * step3.
+                 */
                 if (null != topicConfigWrapper
                     && MixAll.MASTER_ID == brokerId) {
                     if (this.isBrokerTopicConfigChanged(brokerAddr, topicConfigWrapper.getDataVersion())
@@ -155,7 +184,9 @@ public class RouteInfoManager {
                         }
                     }
                 }
-
+                /**
+                 * step4.更新BrokerLiveInfo,存活Broker 信息表 BrokerLiveInfo是执行路由删除的重要依据。
+                 */
                 BrokerLiveInfo prevBrokerLiveInfo = this.brokerLiveTable.put(brokerAddr,
                     new BrokerLiveInfo(
                         System.currentTimeMillis(),
@@ -165,7 +196,9 @@ public class RouteInfoManager {
                 if (null == prevBrokerLiveInfo) {
                     log.info("new broker registered, {} HAServer: {}", brokerAddr, haServerAddr);
                 }
-
+                /**
+                 * step5.注册Broker 的过滤器Server 地址列表
+                 */
                 if (filterServerList != null) {
                     if (filterServerList.isEmpty()) {
                         this.filterServerTable.remove(brokerAddr);
@@ -431,6 +464,7 @@ public class RouteInfoManager {
         while (it.hasNext()) {
             Entry<String, BrokerLiveInfo> next = it.next();
             long last = next.getValue().getLastUpdateTimestamp();
+            //超过120s 没有收到心跳包，NameServer 将移除Broker 的路由信息同时关闭Socket 连接
             if ((last + BROKER_CHANNEL_EXPIRED_TIME) < System.currentTimeMillis()) {
                 RemotingUtil.closeChannel(next.getValue().getChannel());
                 it.remove();
@@ -753,6 +787,9 @@ public class RouteInfoManager {
 }
 
 class BrokerLiveInfo {
+    /**
+     * 存储上次收到broker 心跳包的时间
+     */
     private long lastUpdateTimestamp;
     private DataVersion dataVersion;
     private Channel channel;

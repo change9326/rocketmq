@@ -1,53 +1,33 @@
-## Apache RocketMQ [![Build Status](https://travis-ci.org/apache/rocketmq.svg?branch=master)](https://travis-ci.org/apache/rocketmq) [![Coverage Status](https://coveralls.io/repos/github/apache/rocketmq/badge.svg?branch=master)](https://coveralls.io/github/apache/rocketmq?branch=master)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.rocketmq/rocketmq-all/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.rocketmq)
-[![GitHub release](https://img.shields.io/badge/release-download-orange.svg)](https://rocketmq.apache.org/dowloading/releases)
-[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-
-**[Apache RocketMQ](https://rocketmq.apache.org) is a distributed messaging and streaming platform with low latency, high performance and reliability, trillion-level capacity and flexible scalability.**
-
-It offers a variety of features:
-
-* Pub/Sub messaging model
-* Scheduled message delivery
-* Message retroactivity by time or offset
-* Log hub for streaming
-* Big data integration
-* Reliable FIFO and strict ordered messaging in the same queue
-* Efficient pull&push consumption model
-* Million-level message accumulation capacity in a single queue
-* Multiple messaging protocols like JMS and OpenMessaging
-* Flexible distributed scale-out deployment architecture
-* Lightning-fast batch message exchange system
-* Various message filter mechanics such as SQL and Tag
-* Docker images for isolated testing and cloud isolated clusters
-* Feature-rich administrative dashboard for configuration, metrics and monitoring
-* Access control list
-* Message trace
+# Apache RocketMQ 
+## 2.消息发送
+RocketMQ 发送普通消息有三种实现方式：
+- 可靠同步发送(sync):同步等待
+- 可靠异步发送(async):异步、回调
+- 单向发送(oneway):只管发送
+### 重点
+- RocketMQ消息结构
+- 消息生产者启动流程
+- 消息发送过程
+- 批量消息发送
+## 4.消息消费
+## 4.1 消息消费的两种模式
+### 1.推模式-MQPushConsumer
+### 2.拉模式-MQPullConsumer
+## 4.2 MQPushConsumer 核心属性&方法
+## 4.3 消费者启动流程分析
+## 4.4 消息消费过程
 
 
-----------
 
-## Learn it & Contact us
-* Mailing Lists: <https://rocketmq.apache.org/about/contact/>
-* Home: <https://rocketmq.apache.org>
-* Docs: <https://rocketmq.apache.org/docs/quick-start/>
-* Issues: <https://github.com/apache/rocketmq/issues>
-* Rips: <https://github.com/apache/rocketmq/wiki/RocketMQ-Improvement-Proposal>
-* Ask: <https://stackoverflow.com/questions/tagged/rocketmq>
-* Slack: <https://rocketmq-invite-automation.herokuapp.com/>
- 
+## Q
+### 1.在集群消费模式下，我们的消息只能被消费一次，rocketmq是怎么实现的呢?
 
-----------
-
-## Apache RocketMQ Community
-* [RocketMQ Community Projects](https://github.com/apache/rocketmq-externals)
-----------
-
-## Contributing
-We always welcome new contributions, whether for trivial cleanups, [big new features](https://github.com/apache/rocketmq/wiki/RocketMQ-Improvement-Proposal) or other material rewards, more details see [here](http://rocketmq.apache.org/docs/how-to-contribute/).
- 
-----------
-## License
-[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) Copyright (C) Apache Software Foundation
-
-
+在默认情况下，rocketmq会为每个topic在Broker节点上分配若干个队列，默认的队列数量是4 （defaultTopicQueueNums: 4），
+客户端使用长轮询发起请求，和服务端连接上，主动从broker上拉取消息，而`每个队列只能由一个消费者监听消费`，这样就做到了消息的实时性得到保障，同时保证了消息只有由一个消费者监听消费.
+rocketmq可以横向扩展消费者数量来提高集群的消费能力，但由于一条队列只能由一个消费者监听消费，多余的消费者将不能消费，所以我们扩展消费者数量的时候，需要注意队列的数量是否大于消费者数量。
+### 2.Rocket如何保证每个队列只能由一个消费者监听消费
+### 3.NameServer 集群，节点间无通信，当集群中任意节点宕机，路由信息如何保证不丢失？
+Broker 在启动的时候会向所有的NameServer注册，单个Broker节点与所有的NameServer节点保持长连接及心跳，
+并会定时将Topic信息注册到NameServer
+#### 3.1  NameServer宕机 Broker 如何感知
+### 4. Topic创建流程
