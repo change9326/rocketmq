@@ -57,6 +57,12 @@ import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 import org.apache.rocketmq.remoting.netty.NettyRequestProcessor;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
+/**
+ * 路由发现实现类:
+ * RocketMQ 路由发现 是非实 时的，当 Topic 路由 出现变化后， NameServer不主动推送给客户端 ，
+ * 而 是由客户端定时拉取主题最新的路由 。
+ * 根据主题名 称拉取路由信息的命令编码为: GET ROUTEINTO BY_TOPIC。
+ */
 public class DefaultRequestProcessor implements NettyRequestProcessor {
     private static InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
 

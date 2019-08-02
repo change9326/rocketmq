@@ -86,7 +86,8 @@ public class NamesrvController {
         this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.brokerHousekeepingService);
 
         this.remotingExecutor =
-            Executors.newFixedThreadPool(nettyServerConfig.getServerWorkerThreads(), new ThreadFactoryImpl("RemotingExecutorThread_"));
+            Executors.newFixedThreadPool(nettyServerConfig.getServerWorkerThreads(),
+                    new ThreadFactoryImpl("RemotingExecutorThread_"));
 
         this.registerProcessor();
 

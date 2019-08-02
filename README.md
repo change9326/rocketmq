@@ -1,4 +1,13 @@
 # Apache RocketMQ 
+## 1.NameServer
+### 1.1 NameServer 架构设计
+### 1.2 NameServer 启动流程分析
+### 1.3 路由注册、故障剔除
+#### 路由元数据
+#### 路由注册
+#### 路由删除
+NameServer 集群中那个节点执行路由删除，还是NameServer 集群 中所有的节点都执行删除操作？
+
 ## 2.消息发送
 RocketMQ 发送普通消息有三种实现方式：
 - 可靠同步发送(sync):同步等待
@@ -31,3 +40,6 @@ Broker 在启动的时候会向所有的NameServer注册，单个Broker节点与
 并会定时将Topic信息注册到NameServer
 #### 3.1  NameServer宕机 Broker 如何感知
 ### 4. Topic创建流程
+
+## 源码分析篇
+- [深度解析RocketMQ Topic的创建机制](http://objcoding.com/2019/03/31/rocketmq-topic/)
