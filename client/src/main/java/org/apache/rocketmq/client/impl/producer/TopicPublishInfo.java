@@ -33,6 +33,10 @@ public class TopicPublishInfo {
      * 该主题队列的消息队列
      */
     private List<MessageQueue> messageQueueList = new ArrayList<MessageQueue>();
+    /**
+     * 每选择一次消息 队列， 该值会自增 l，如果 Integer.MAX_V ALUE,
+     * 则重置为 0，用于选择消息队列。
+     */
     private volatile ThreadLocalIndex sendWhichQueue = new ThreadLocalIndex();
     private TopicRouteData topicRouteData;
 

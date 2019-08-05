@@ -46,6 +46,9 @@ public class NamesrvController {
 
     private final NettyServerConfig nettyServerConfig;
 
+    /**
+     * 核心线程数为1，延迟队列，一个任务一个任务地执行
+     */
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(
         "NSScheduledThread"));
     private final KVConfigManager kvConfigManager;
@@ -91,6 +94,7 @@ public class NamesrvController {
 
         this.registerProcessor();
 
+        //如果任务的执行时间超过任务的调度时间，下一次任务会在上一次任务执行完成之后立刻执行
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override
