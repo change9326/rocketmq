@@ -83,17 +83,17 @@ public class NamesrvController {
      * @return
      */
     public boolean initialize() {
-
+        // TODO:读取加载KV 配置 @3
         this.kvConfigManager.load();
-
+        // TODO:使用初始化NettyRemotingServer @4
         this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.brokerHousekeepingService);
-
+        // TODO:使用NettyServerConfig.serverWorkerThreads 创建固定大小的线程池,线程名以RemotingExecutorThread_ 开头
         this.remotingExecutor =
             Executors.newFixedThreadPool(nettyServerConfig.getServerWorkerThreads(),
                     new ThreadFactoryImpl("RemotingExecutorThread_"));
-
+        // TODO: 将DefaultRequestProcessor 与remotingExecutor做绑定，即使用remotingExecutor做Netty事件处理线程池 @5
         this.registerProcessor();
-
+        // TODO:开启一个定时器,每隔10s扫描无效的的broker,并清除broker 相关路由配置信息 @6
         //如果任务的执行时间超过任务的调度时间，下一次任务会在上一次任务执行完成之后立刻执行
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
@@ -102,7 +102,7 @@ public class NamesrvController {
                 NamesrvController.this.routeInfoManager.scanNotActiveBroker();
             }
         }, 5, 10, TimeUnit.SECONDS);
-
+        // TODO:开启一个定时器,每隔10分钟输出kvConfig 信息 @7
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override
@@ -155,11 +155,13 @@ public class NamesrvController {
     private void registerProcessor() {
         if (namesrvConfig.isClusterTest()) {
 
-            this.remotingServer.registerDefaultProcessor(new ClusterTestRequestProcessor(this, namesrvConfig.getProductEnvName()),
+            this.remotingServer.registerDefaultProcessor(new ClusterTestRequestProcessor(this,
+                            namesrvConfig.getProductEnvName()),
                 this.remotingExecutor);
         } else {
-
-            this.remotingServer.registerDefaultProcessor(new DefaultRequestProcessor(this), this.remotingExecutor);
+           //TODO 将DefaultRequestProcessor 与remotingExecutor做绑定，即使用remotingExecutor做Netty事件处理线程池
+            this.remotingServer.registerDefaultProcessor(new DefaultRequestProcessor(this),
+                    this.remotingExecutor);
         }
     }
 

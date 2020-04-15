@@ -469,7 +469,7 @@ public class RouteInfoManager {
 
     public void scanNotActiveBroker() {
         /**
-         * 遍历 brokerLivelnfo 路由表( HashMap)，检测 BrokerLiv巳Info 的 lastUpdateTimestamp
+         * 遍历 brokerLivelnfo 路由表( HashMap)，检测 BrokerLiveInfo 的 lastUpdateTimestamp
          * 上次收到心跳包的时间如果超过当前时间120s, NameServer则认为该 Broker已不可用，
          * 故需要将它移除，关闭 Channel，然后删除与该 Broker相关的路由信息，路由表维护过程， 需要 申请写锁 。
          */

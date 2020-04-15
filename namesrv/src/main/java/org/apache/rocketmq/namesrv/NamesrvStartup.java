@@ -58,11 +58,13 @@ public class NamesrvStartup {
 
         try {
             /**
-             *  step1:解析配置文件，需要填充 NamesrvConfig(NameServer 业务参数)、NettyServerConfig(NameServer 网络参数) 属性值
+             *  step1:解析配置文件，填充 NamesrvConfig(NameServer 业务参数)、NettyServerConfig(NameServer 网络参数) 属性值
              */
             NamesrvController controller = createNamesrvController(args);
+            // 启动初始化NameServer
             start(controller);
-            String tip = "The Name Server boot success. serializeType=" + RemotingCommand.getSerializeTypeConfigInThisServer();
+            String tip = "The Name Server boot success. serializeType=" +
+                    RemotingCommand.getSerializeTypeConfigInThisServer();
             log.info(tip);
             System.out.printf("%s%n", tip);
             return controller;
@@ -75,6 +77,7 @@ public class NamesrvStartup {
     }
 
     public static NamesrvController createNamesrvController(String[] args) throws IOException, JoranException {
+        // 设置系统属性(rocketmq.remoting.version)
         System.setProperty(RemotingCommand.REMOTING_VERSION_KEY, Integer.toString(MQVersion.CURRENT_VERSION));
 
         Options options = ServerUtil.buildCommandlineOptions(new Options());
@@ -91,7 +94,9 @@ public class NamesrvStartup {
          */
         final NamesrvConfig namesrvConfig = new NamesrvConfig();
         final NettyServerConfig nettyServerConfig = new NettyServerConfig();
+        // TODO 设置默认监听端口9876
         nettyServerConfig.setListenPort(9876);
+        // TODO 若有 -c 命令指定配置文件路径，则读取指定路径配置文件
         if (commandLine.hasOption('c')) {
             String file = commandLine.getOptionValue('c');
             if (file != null) {
@@ -107,7 +112,7 @@ public class NamesrvStartup {
                 in.close();
             }
         }
-
+        // TODO 若有 -p 命令，则打印所有配置信息
         if (commandLine.hasOption('p')) {
             InternalLogger console = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_CONSOLE_NAME);
             MixAll.printObjectProperties(console, namesrvConfig);
@@ -165,7 +170,6 @@ public class NamesrvStartup {
                 return null;
             }
         }));
-
         controller.start();
 
         return controller;
