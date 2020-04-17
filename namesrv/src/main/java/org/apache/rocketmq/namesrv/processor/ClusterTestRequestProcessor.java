@@ -55,8 +55,8 @@ public class ClusterTestRequestProcessor extends DefaultRequestProcessor {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
         final GetRouteInfoRequestHeader requestHeader =
             (GetRouteInfoRequestHeader) request.decodeCommandCustomHeader(GetRouteInfoRequestHeader.class);
-
-        TopicRouteData topicRouteData = this.namesrvController.getRouteInfoManager().pickupTopicRouteData(requestHeader.getTopic());
+        TopicRouteData topicRouteData = this.namesrvController.getRouteInfoManager().
+                pickupTopicRouteData(requestHeader.getTopic());
         if (topicRouteData != null) {
             String orderTopicConf =
                 this.namesrvController.getKvConfigManager().getKVConfig(NamesrvUtil.NAMESPACE_ORDER_TOPIC_CONFIG,
@@ -69,7 +69,6 @@ public class ClusterTestRequestProcessor extends DefaultRequestProcessor {
                 log.info("get route info by topic from product environment failed. envName={},", productEnvName);
             }
         }
-
         if (topicRouteData != null) {
             byte[] content = topicRouteData.encode();
             response.setBody(content);

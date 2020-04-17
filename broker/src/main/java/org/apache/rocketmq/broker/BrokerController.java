@@ -126,6 +126,10 @@ public class BrokerController {
     private final ConsumerIdsChangeListener consumerIdsChangeListener;
     private final RebalanceLockManager rebalanceLockManager = new RebalanceLockManager();
     private final BrokerOuterAPI brokerOuterAPI;
+    /**
+     * 使用Executors.newSingleThreadScheduledExecutor()来创建线程池同时放入多个线程时，每个线程都会按照自己的调度来执行，
+     * 但是当其中一个线程被阻塞时，其它的线程都会受到影响被阻塞，不过依然都会按照自身调度来执行，但是会存在阻塞延迟。
+     */
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(
         "BrokerControllerScheduledThread"));
     private final SlaveSynchronize slaveSynchronize;
@@ -863,6 +867,7 @@ public class BrokerController {
         this.registerBrokerAll(true, false, true);
         /**
          * Broker 发送心跳包核心代码
+         * 提交后,10秒开始第一次执行，之后每间隔30s固定执行一次(如果发现上次执行还未完毕，则等待完毕，完毕后立刻执行)
          */
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
@@ -909,6 +914,7 @@ public class BrokerController {
     public synchronized void registerBrokerAll(final boolean checkOrderConfig, boolean oneway, boolean forceRegister) {
         TopicConfigSerializeWrapper topicConfigWrapper = this.getTopicConfigManager().buildTopicConfigSerializeWrapper();
 
+        // TODO：若broker对应权限不可读、或者不可写，将topic的权限也设置为broker 的权限
         if (!PermName.isWriteable(this.getBrokerConfig().getBrokerPermission())
             || !PermName.isReadable(this.getBrokerConfig().getBrokerPermission())) {
             ConcurrentHashMap<String, TopicConfig> topicConfigTable = new ConcurrentHashMap<String, TopicConfig>();
@@ -920,7 +926,8 @@ public class BrokerController {
             }
             topicConfigWrapper.setTopicConfigTable(topicConfigTable);
         }
-
+        // TODO：判断是否需要注册、 判断逻辑如下
+        // TODO：如果NameServer 端没有该broker 对应的dataVersion 如果NameServer端dataVersion与当前不一致，则重新注册broker及topic信息
         if (forceRegister || needRegister(this.brokerConfig.getBrokerClusterName(),
             this.getBrokerAddr(),
             this.brokerConfig.getBrokerName(),
@@ -932,6 +939,7 @@ public class BrokerController {
 
     private void doRegisterBrokerAll(boolean checkOrderConfig, boolean oneway,
         TopicConfigSerializeWrapper topicConfigWrapper) {
+        // TODO:真正进行路由注册的方法，返回注册结果
         List<RegisterBrokerResult> registerBrokerResultList = this.brokerOuterAPI.registerBrokerAll(
             this.brokerConfig.getBrokerClusterName(),
             this.getBrokerAddr(),

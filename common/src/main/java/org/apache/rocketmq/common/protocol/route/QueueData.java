@@ -30,6 +30,9 @@ public class QueueData implements Comparable<QueueData> {
      * 写队列默认为4
      */
     private int writeQueueNums;
+    /**
+     * 权限值 参考PermName类
+     */
     private int perm;
     private int topicSynFlag;
 

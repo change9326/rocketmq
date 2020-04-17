@@ -262,7 +262,6 @@ public class RouteInfoManager {
         queueData.setReadQueueNums(topicConfig.getReadQueueNums());
         queueData.setPerm(topicConfig.getPerm());
         queueData.setTopicSynFlag(topicConfig.getTopicSysFlag());
-
         List<QueueData> queueDataList = this.topicQueueTable.get(topicConfig.getTopicName());
         if (null == queueDataList) {
             queueDataList = new LinkedList<QueueData>();
@@ -271,7 +270,6 @@ public class RouteInfoManager {
             log.info("new topic registered, {} {}", topicConfig.getTopicName(), queueData);
         } else {
             boolean addNewOne = true;
-
             Iterator<QueueData> it = queueDataList.iterator();
             while (it.hasNext()) {
                 QueueData qd = it.next();
@@ -285,7 +283,6 @@ public class RouteInfoManager {
                     }
                 }
             }
-
             if (addNewOne) {
                 queueDataList.add(queueData);
             }
