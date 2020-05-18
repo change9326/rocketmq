@@ -529,4 +529,9 @@ public class UtilAll {
             file.delete();
         }
     }
+
+    public static void main(String[] args) {
+        byte[] byts = string2bytes("AC10005756B4092831A8513EC5B8B1A2");
+        System.out.println("--");
+    }
 }
